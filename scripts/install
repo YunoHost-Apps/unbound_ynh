@@ -110,6 +110,7 @@ ynh_add_nginx_config
 #=================================================
 
 cp -a ../conf/unbound.conf /etc/unbound/unbound.conf.d/unbound.conf
+echo "nameserver 127.0.0.1" | tee /etc/resolv.conf
 unbound-checkconf /etc/unbound/unbound.conf
 #ynh_replace_string "__NEXTCLOUDDOMAIN__" "$nextcloud_domain" "/etc/unbound/unbound.conf.d/unbound.conf"
 #ynh_replace_string "__PASSWORD__" "$password" "/etc/unbound/unbound.conf.d/unbound.conf"
@@ -137,8 +138,8 @@ unbound-checkconf /etc/unbound/unbound.conf
 ### that really need such authorization.
 
 # Set permissions to app files
-#chown -R root: /etc/loolwsd
-
+chown unbound:unbound /var/lib/unbound/root.hints
+chown unbound:unbound /etc/unbound/unbound.conf.d/unbound.conf
 
 #=================================================
 # SETUP SSOWAT
@@ -152,4 +153,6 @@ fi
 
 # Reload services
 systemctl reload nginx
+systemctl stop dnsmasq
+systemctl disable dnsmasq
 systemctl restart unbound
