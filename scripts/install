@@ -84,20 +84,12 @@ port=$(ynh_find_port 53)
 
 ynh_package_install unbound unbound-host
 
-#=================================================
-# DOWNLOAD, CHECK AND UNPACK SOURCE
-#=================================================
-
-ynh_app_setting_set $app final_path $final_path
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source "$final_path"
-
 #==============================================
 # INSTALL DNS ROOT
 #==============================================
 
-cp -a ../conf/root.hints /var/lib/unbound/root.hints
-#cd /var/lib/unbound/ wget https://www.internic.net/domain/named.cache -O root.hints
+#cp -a ../conf/root.hints /var/lib/unbound/root.hints
+wget ftp://ftp.internic.net/domain/named.cache -O /var/lib/unbound/root.hints
 
 #=================================================
 # NGINX CONFIGURATION
@@ -118,6 +110,7 @@ ynh_add_nginx_config
 #=================================================
 
 cp -a ../conf/unbound.conf /etc/unbound/unbound.conf.d/unbound.conf
+unbound-checkconf /etc/unbound/unbound.conf
 #ynh_replace_string "__NEXTCLOUDDOMAIN__" "$nextcloud_domain" "/etc/unbound/unbound.conf.d/unbound.conf"
 #ynh_replace_string "__PASSWORD__" "$password" "/etc/unbound/unbound.conf.d/unbound.conf"
 
