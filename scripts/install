@@ -76,10 +76,13 @@ ynh_app_setting_set $app is_public $is_public
 ###		- Remove the section "CLOSE A PORT" in the remove script
 
 # Find a free port
-port=$(ynh_find_port 8096)
-# Open this port
-yunohost firewall allow --no-upnp TCP $port 2>&1
-ynh_app_setting_set $app port $port
+port=$(ynh_find_port 53)
+
+#==============================================
+# INSTALL JAVA
+#==============================================
+
+ynh_package_install unbound unbound-host
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -90,10 +93,11 @@ ynh_app_setting_set $app final_path $final_path
 ynh_setup_source "$final_path"
 
 #==============================================
-# INSTALL EMBY
+# INSTALL DNS ROOT
 #==============================================
 
-dpkg --install  $final_path/emby-server-deb*
+cp -a ../conf/root.hints /var/lib/unbound/root.hints
+#cd /var/lib/unbound/ wget https://www.internic.net/domain/named.cache -O root.hints
 
 #=================================================
 # NGINX CONFIGURATION
@@ -107,14 +111,15 @@ ynh_add_nginx_config
 #=================================================
 
 # Create a system user
-ynh_system_user_create $app
+#ynh_system_user_create $app
 
 #=================================================
 # MODIFY A CONFIG FILE
 #=================================================
-#cp -a ../conf/onlyoffice-documentserver.conf /etc/onlyoffice/documentserver/nginx/onlyoffice-documentserver.conf
-#ynh_replace_string "__NEXTCLOUDDOMAIN__" "$nextcloud_domain" "/etc/loolwsd/loolwsd.xml"
-#ynh_replace_string "__PASSWORD__" "$password" "/etc/loolwsd/loolwsd.xml"
+
+cp -a ../conf/unbound.conf /etc/unbound/unbound.conf.d/unbound.conf
+#ynh_replace_string "__NEXTCLOUDDOMAIN__" "$nextcloud_domain" "/etc/unbound/unbound.conf.d/unbound.conf"
+#ynh_replace_string "__PASSWORD__" "$password" "/etc/unbound/unbound.conf.d/unbound.conf"
 
 #=================================================
 # STORE THE CONFIG FILE CHECKSUM
@@ -154,3 +159,4 @@ fi
 
 # Reload services
 systemctl reload nginx
+systemctl restart unbound
