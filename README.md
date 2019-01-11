@@ -1,6 +1,8 @@
 # Unbound app for YunoHost
 Unbound Server
 
+# NOT WORK IS IN DEV
+
 - [Yunohost project](https://yunohost.org)
 - [Unbound website](https://nlnetlabs.nl/projects/unbound/about/)
 
