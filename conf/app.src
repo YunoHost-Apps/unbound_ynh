@@ -1,7 +1,0 @@
-SOURCE_URL=http://ftp.fr.debian.org/debian/pool/main/u/unbound/unbound_1.8.1-1+b1_amd64.deb
-SOURCE_SUM=505f879a704bea2dce2cc8ed5cefb8024f4020a10a0f2ceb5ecad53072f6a7260ff895bbe74d20d03ebd3873fcc19f3ca64ce03c7dd840b843a3b27873d28aef
-SOURCE_SUM_PRG=sha512sum
-SOURCE_FORMAT=deb
-SOURCE_IN_SUBDIR=false
-SOURCE_EXTRACT=false
-SOURCE_FILENAME=unbound.deb

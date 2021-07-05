@@ -24,134 +24,69 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-# Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
-is_public=$YNH_APP_ARG_IS_PUBLIC
 
-### If it's a multi-instance app, meaning it can be installed several times independently
-### The id of the app as stated in the manifest is available as $YNH_APP_ID
-### The instance number is available as $YNH_APP_INSTANCE_NUMBER (equals "1", "2", ...)
-### The app instance name is available as $YNH_APP_INSTANCE_NAME
-###    - the first time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample
-###    - the second time the app is installed, YNH_APP_INSTANCE_NAME = ynhexample__2
-###    - ynhexample__{N} for the subsequent installations, with N=3,4, ...
-### The app instance name is probably what interests you most, since this is
-### guaranteed to be unique. This is a good unique identifier to define installation path,
-### db names, ...
 app=$YNH_APP_INSTANCE_NAME
-
-#=================================================
-# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
-#=================================================
-
-### If the app uses nginx as web server (written in HTML/PHP in most cases), the final path should be "/var/www/$app".
-### If the app provides an internal web server (or uses another application server such as uwsgi), the final path should be "/opt/yunohost/$app"
-final_path=/opt/yunohost/$app
-test ! -e "$final_path" || ynh_die "This path already contains a folder"
-
-# Normalize the url path syntax
-path_url=$(ynh_normalize_url_path $path_url)
-
-# Check web path availability
-ynh_webpath_available $domain $path_url
-# Register (book) web path
-ynh_webpath_register $app $domain $path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_script_progression --message="Storing installation settings..." --time --weight=1
 
-ynh_app_setting_set $app domain $domain
-ynh_app_setting_set $app path $path_url
-ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set --app=$app --key=domain --value=$domain
 
+#=================================================
+# STANDARD MODIFICATIONS
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
+ynh_script_progression --message="Finding an available port..." --time --weight=1
 
-### Use these lines if you have to open a port for the application
-### `ynh_find_port` will find the first available port starting from the given port.
-### If you're not using these lines:
-###		- Remove the section "CLOSE A PORT" in the remove script
+# Find an available port
+port=$(ynh_find_port --port=8095)
+ynh_app_setting_set --app=$app --key=port --value=$port
 
-# Find a free port
-port=$(ynh_find_port 53)
+# Optional: Expose this port publicly
+# (N.B.: you only need to do this if the app actually needs to expose the port publicly.
+# If you do this and the app doesn't actually need you are CREATING SECURITY HOLES IN THE SERVER !)
 
-#==============================================
-# INSTALL UNBOUND
-#==============================================
-
-ynh_package_install unbound unbound-host
-
-#==============================================
-# INSTALL DNS ROOT
-#==============================================
-
-wget ftp://ftp.internic.net/domain/named.cache -O /var/lib/unbound/root.hints
+# Open the port
+# ynh_script_progression --message="Configuring firewall..." --time --weight=1
+# ynh_exec_warn_less yunohost firewall allow --no-upnp TCP $port
 
 #=================================================
-# NGINX CONFIGURATION
+# INSTALL DEPENDENCIES
 #=================================================
+ynh_script_progression --message="Installing dependencies..." --time --weight=1
 
-# Create a dedicated nginx config
-ynh_add_nginx_config
-
-#=================================================
-# CREATE DEDICATED USER
-#=================================================
-
-# Create a system user
-#ynh_system_user_create $app
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
-# MODIFY A CONFIG FILE
+# ADD A CONFIGURATION
 #=================================================
+ynh_script_progression --message="Adding a configuration file..." --time --weight=1
 
-cp -a ../conf/unbound.conf /etc/unbound/unbound.conf.d/unbound.conf
-#echo "nameserver 127.0.0.1" | tee /etc/resolv.conf
-unbound-checkconf /etc/unbound/unbound.conf
-#ynh_replace_string "__NEXTCLOUDDOMAIN__" "$nextcloud_domain" "/etc/unbound/unbound.conf.d/unbound.conf"
-#ynh_replace_string "__PASSWORD__" "$password" "/etc/unbound/unbound.conf.d/unbound.conf"
+ynh_add_config --template="../conf/unbound.conf" --destination="/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
-#=================================================
-# STORE THE CONFIG FILE CHECKSUM
-#=================================================
-
-### `ynh_store_file_checksum` is used to store the checksum of a file.
-### That way, during the upgrade script, by using `ynh_backup_if_checksum_is_different`,
-### you can make a backup of this file before modifying it again if the admin had modified it.
-
-# Calculate and store the config file checksum into the app settings
-#ynh_store_file_checksum "/etc/onlyoffice/documentserver/nginx/onlyoffice-documentserver.conf"
-
+chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
-# SECURE FILES AND DIRECTORIES
+# ADD ROOT SERVERS LIST
 #=================================================
 
-### For security reason, any app should set the permissions to root: before anything else.
-### Then, if write authorization is needed, any access should be given only to directories
-### that really need such authorization.
-
-# Set permissions to app files
-chown unbound:unbound /var/lib/unbound/root.hints
-chown unbound:unbound /etc/unbound/unbound.conf.d/unbound.conf
+wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
 
 #=================================================
-# SETUP SSOWAT
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..." --time --weight=1
+
+# Start a systemd service
+ynh_systemd_action --service_name=unbound --action="start" --log_path="/var/log/$app/$app.log"
+
+#=================================================
+# END OF SCRIPT
 #=================================================
 
-# If app is public, add url to SSOWat conf as skipped_uris
-if [ $is_public -eq 1 ]; then
-  # unprotected_uris allows SSO credentials to be passed anyway.
-  ynh_app_setting_set "$app" unprotected_uris "/"
-fi
-
-# Reload services
-systemctl reload nginx
-systemctl stop dnsmasq
-systemctl disable dnsmasq
-systemctl restart unbound
+ynh_script_progression --message="Installation of $app completed" --time --last

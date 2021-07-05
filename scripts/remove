@@ -12,39 +12,32 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_script_progression --message="Loading installation settings..." --time --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get $app domain)
-port=$(ynh_app_setting_get $app port)
-final_path=$(ynh_app_setting_get $app final_path)
+domain=$(ynh_app_setting_get --app=$app --key=domain)
 
 #=================================================
 # STANDARD REMOVE
 #=================================================
+# REMOVE SERVICE INTEGRATION IN YUNOHOST
+#=================================================
 
-ynh_package_remove unbound unbound-host
+# Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
+if ynh_exec_warn_less yunohost service status $app >/dev/null
+then
+	ynh_script_progression --message="Removing $app service integration..." --time --weight=1
+	yunohost service remove $app
+fi
 
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
+ynh_script_progression --message="Removing dependencies..." --time --weight=1
 
 # Remove metapackage and its dependencies
-#ynh_remove_app_dependencies
-
-#=================================================
-# REMOVE APP MAIN DIR
-#=================================================
-
-# Remove the app directory securely
-ynh_secure_remove "$final_path"
-
-#=================================================
-# REMOVE NGINX CONFIGURATION
-#=================================================
-
-# Remove the dedicated nginx config
-ynh_remove_nginx_config
+ynh_remove_app_dependencies
 
 #=================================================
 # CLOSE A PORT
@@ -52,31 +45,12 @@ ynh_remove_nginx_config
 
 if yunohost firewall list | grep -q "\- $port$"
 then
-	echo "Close port $port" >&2
-	yunohost firewall disallow TCP $port 2>&1
+	ynh_script_progression --message="Closing port $port..." --time --weight=1
+	ynh_exec_warn_less yunohost firewall disallow TCP $port
 fi
 
 #=================================================
-# SPECIFIC REMOVE
-#=================================================
-# REMOVE THE CRON FILE
+# END OF SCRIPT
 #=================================================
 
-# Remove a cron file
-ynh_secure_remove "/etc/cron.d/$app"
-
-# Remove a directory securely
-ynh_secure_remove "/etc/apt/sources.list.d/onlyoffice.list"
-
-
-# Remove the log files
-ynh_secure_remove "/var/log/$app/"
-
-#=================================================
-# GENERIC FINALIZATION
-#=================================================
-# REMOVE DEDICATED USER
-#=================================================
-
-# Delete a system user
-ynh_system_user_delete $app
+ynh_script_progression --message="Removal of $app completed" --time --last
