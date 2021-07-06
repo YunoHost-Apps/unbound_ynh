@@ -68,8 +68,8 @@ ynh_script_progression --message="Adding a configuration file..." --time --weigh
 
 ynh_add_config --template="../conf/unbound.conf" --destination="/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
-chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
-chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+#chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+#chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
 #=================================================
 # ADD ROOT SERVERS LIST
@@ -77,13 +77,18 @@ chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
 wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
 
+
+unbound-checkconf
+systemctl restart unbound
+
+
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
 ynh_script_progression --message="Starting a systemd service..." --time --weight=1
 
 # Start a systemd service
-ynh_systemd_action --service_name=unbound --action="start" --log_path="/var/log/$app/$app.log"
+#ynh_systemd_action --service_name=unbound --action="start" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # END OF SCRIPT
