@@ -19,35 +19,12 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 
 #=================================================
-# STANDARD REMOVE
-#=================================================
-# REMOVE SERVICE INTEGRATION IN YUNOHOST
-#=================================================
-
-# Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
-if ynh_exec_warn_less yunohost service status $app >/dev/null
-then
-	ynh_script_progression --message="Removing $app service integration..." --time --weight=1
-	yunohost service remove $app
-fi
-
-#=================================================
 # REMOVE DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Removing dependencies..." --time --weight=1
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
-
-#=================================================
-# CLOSE A PORT
-#=================================================
-
-if yunohost firewall list | grep -q "\- $port$"
-then
-	ynh_script_progression --message="Closing port $port..." --time --weight=1
-	ynh_exec_warn_less yunohost firewall disallow TCP $port
-fi
 
 #=================================================
 # END OF SCRIPT
