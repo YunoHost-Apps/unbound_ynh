@@ -77,7 +77,7 @@ chown $app:$app /var/lib/unbound/root.hints
 #=================================================
 # CHECK CONFIG
 #=================================================
-ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
+ynh_script_progression --message="Checking the configuration..." --weight=1
 
 unbound-checkconf
 
