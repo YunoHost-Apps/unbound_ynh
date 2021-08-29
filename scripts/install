@@ -75,7 +75,7 @@ ynh_script_progression --message="Configuring log rotation..." --weight=1
 
 # Create log directory
 mkdir -p /var/log/$app
-touch /var/log/$app/unbound.log
+touch /var/log/$app/$app.log
 chown $app -R /var/log/$app
 
 # Setup logrotate
