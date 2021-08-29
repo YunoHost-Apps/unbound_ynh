@@ -20,19 +20,15 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-domain=$YNH_APP_ARG_DOMAIN
-
 app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Storing installation settings..." --weight=1
-
-ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_script_progression --message="Finding an available port..." --weight=1
 
 # Find an available port
-port=$(ynh_find_port --port=54)
+port=$(ynh_find_port --port=53)
 ynh_app_setting_set --app=$app --key=port --value=$port
 
 # Open the port
