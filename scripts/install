@@ -43,7 +43,7 @@ ynh_install_app_dependencies $pkg_dependencies
 #=================================================
 ynh_script_progression --message="Adding a configuration file..." --weight=1
 
-ynh_add_config --template="../conf/yunohost-unbound.conf" --destination="/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+ynh_add_config --template="../conf/unbound.conf" --destination="/var/lib/unbound/unbound.conf.d/yunohost-unbound.conf"
 
 chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
@@ -54,7 +54,7 @@ chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
 wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
 #wget https://www.internic.net/domain/named.cache -O /var/lib/unbound/root.hints
-
+chown $app:$app /var/lib/unbound/root.hints
 unbound-checkconf
 
 #=================================================
