@@ -31,6 +31,14 @@ ynh_script_progression --message="Storing installation settings..." --weight=1
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 
+# Find an available port
+port=$(ynh_find_port --port=54)
+ynh_app_setting_set --app=$app --key=port --value=$port
+
+# Open the port
+ynh_script_progression --message="Configuring firewall..." --weight=1
+ynh_exec_warn_less yunohost firewall allow --no-upnp TCP $port
+
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
@@ -56,6 +64,13 @@ wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
 #wget https://www.internic.net/domain/named.cache -O /var/lib/unbound/root.hints
 chown $app:$app /var/lib/unbound/root.hints
 unbound-checkconf
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+
+yunohost service add $app --description="Caching DNS server" --log="/var/log/$app/$app.log"
 
 #=================================================
 # START SYSTEMD SERVICE
