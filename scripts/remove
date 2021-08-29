@@ -12,7 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --time --weight=1
+ynh_script_progression --message="Loading installation settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -21,7 +21,7 @@ domain=$(ynh_app_setting_get --app=$app --key=domain)
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Removing dependencies..." --time --weight=1
+ynh_script_progression --message="Removing dependencies..." --weight=1
 
 # Remove metapackage and its dependencies
 ynh_remove_app_dependencies
@@ -30,4 +30,4 @@ ynh_remove_app_dependencies
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Removal of $app completed" --time --last
+ynh_script_progression --message="Removal of $app completed" --last

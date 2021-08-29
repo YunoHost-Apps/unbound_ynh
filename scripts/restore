@@ -24,37 +24,18 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --time --weight=1
+ynh_script_progression --message="Loading installation settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get --app=$app --key=domain)
 
 #=================================================
-# RESTORE THE DATA DIRECTORY
-#=================================================
-ynh_script_progression --message="Restoring the data directory..." --time --weight=1
-
-ynh_restore_file --origin_path="$datadir" --not_mandatory
-
-mkdir -p $datadir
-
-# FIXME: this should be managed by the core in the future
-# Here, as a packager, you may have to tweak the ownerhsip/permissions
-# such that the appropriate users (e.g. maybe www-data) can access
-# files in some cases.
-# But FOR THE LOVE OF GOD, do not allow r/x for "others" on the entire folder -
-# this will be treated as a security issue.
-chmod 750 "$datadir"
-chmod -R o-rwx "$datadir"
-chown -R $app:www-data "$datadir"
-
-#=================================================
 # SPECIFIC RESTORATION
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Reinstalling dependencies..." --time --weight=1
+ynh_script_progression --message="Reinstalling dependencies..." --weight=1
 
 # Define and install dependencies
 ynh_install_app_dependencies $pkg_dependencies
@@ -63,4 +44,4 @@ ynh_install_app_dependencies $pkg_dependencies
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Restoration completed for $app" --time --last
+ynh_script_progression --message="Restoration completed for $app" --last
