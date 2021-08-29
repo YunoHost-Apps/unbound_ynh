@@ -20,14 +20,14 @@ To help increase online privacy, Unbound supports DNS-over-TLS and DNS-over-HTTP
 
 **Shipped version:** 1.9.0~ynh1
 
-**Demo:** https://demo.example.com
+
 
 ## Documentation and resources
 
 * Official app website: https://nlnetlabs.nl/projects/unbound/about/
 * Official user documentation: https://yunohost.org/apps
 * Official admin documentation: https://nlnetlabs.nl/documentation/unbound/
-* Upstream app code repository: https://some.forge.com/example/example
+* Upstream app code repository: https://github.com/NLnetLabs/unbound
 * YunoHost documentation for this app: https://yunohost.org/app_unbound
 * Report a bug: https://github.com/YunoHost-Apps/unbound_ynh/issues
 
