@@ -28,8 +28,7 @@
     "services": [
     ],
     "arguments": {
-        "install": [{
-            }
+        "install": [
         ]
     }
 }
