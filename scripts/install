@@ -45,8 +45,8 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ynh_add_config --template="../conf/unbound.conf" --destination="/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
-#chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
-#chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+chown root: "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
 #=================================================
 # ADD ROOT SERVERS LIST
