@@ -43,6 +43,19 @@ ynh_script_progression --message="Installing dependencies..." --weight=5
 ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
+# HANDLE LOG FILES AND LOGROTATE
+#=================================================
+ynh_script_progression --message="Configuring log rotation..." --weight=1
+
+# Create log directory
+mkdir -p /var/log/$app
+touch /var/log/$app/$app.log
+chown $app -R /var/log/$app
+
+# Setup logrotate
+ynh_use_logrotate --specific_user=$app/$app
+
+#=================================================
 # ADD A CONFIGURATION
 #=================================================
 ynh_script_progression --message="Adding a configuration file..." --weight=1
@@ -67,19 +80,6 @@ chown $app:$app /var/lib/unbound/root.hints
 ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
 
 unbound-checkconf
-
-#=================================================
-# HANDLE LOG FILES AND LOGROTATE
-#=================================================
-ynh_script_progression --message="Configuring log rotation..." --weight=1
-
-# Create log directory
-mkdir -p /var/log/$app
-touch /var/log/$app/$app.log
-chown $app -R /var/log/$app
-
-# Setup logrotate
-ynh_use_logrotate --specific_user=$app/$app
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
