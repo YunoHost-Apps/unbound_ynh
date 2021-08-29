@@ -59,11 +59,31 @@ chown $app:$app "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 #=================================================
 # ADD ROOT SERVERS LIST
 #=================================================
+ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
 
 wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
 #wget https://www.internic.net/domain/named.cache -O /var/lib/unbound/root.hints
 chown $app:$app /var/lib/unbound/root.hints
+
+#=================================================
+# CHECK CONFIG
+#=================================================
+ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
+
 unbound-checkconf
+
+#=================================================
+# HANDLE LOG FILES AND LOGROTATE
+#=================================================
+ynh_script_progression --message="Configuring log rotation..." --weight=1
+
+# Create log directory
+mkdir -p /var/log/$app
+touch /var/log/$app/unbound.log
+chown $app -R /var/log/$app
+
+# Setup logrotate
+ynh_use_logrotate --specific_user=$app/$app
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
