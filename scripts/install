@@ -75,6 +75,18 @@ wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints &>
 chown $app:$app /var/lib/unbound/root.hints
 
 #=================================================
+# ADD ROOT SERVERS LIST
+#=================================================
+ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
+
+curl ftp://FTP.INTERNIC.NET/domain/named.cache -o /var/lib/unbound/root.hints &>/dev/null
+chown $app:$app /var/lib/unbound/root.hints
+
+# update file ads servers
+curl -sS -L --compressed "http://pgl.yoyo.org/adservers/serverlist.php?hostformat=unbound&showintro=0&mimetype=plaintext" > /var/lib/unbound/unbound_ad_servers
+chown $app:$app /var/lib/unbound/unbound_ad_servers 
+
+#=================================================
 # CHECK CONFIG
 #=================================================
 ynh_script_progression --message="Checking the configuration..." --weight=1
