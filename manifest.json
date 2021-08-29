@@ -8,6 +8,14 @@
     },
     "version": "1.9.0~ynh1",
     "url": "https://nlnetlabs.nl/projects/unbound/about/",
+    "upstream": {
+        "license": "free",
+        "website": "https://nlnetlabs.nl/projects/unbound/about/",
+        "demo": "https://demo.example.com",
+        "admindoc": "https://nlnetlabs.nl/documentation/unbound/",
+        "userdoc": "https://yunohost.org/apps",
+        "code": "https://some.forge.com/example/example"
+    },
     "license": "free",
     "maintainer": {
         "name": "liberodark",
