@@ -6,7 +6,7 @@
         "en": "Recursive-only caching DNS server",
         "fr": "Serveur DNS de mise en cache uniquement récursif"
     },
-    "version": "1.9.0~ynh1",
+    "version": "1.13.1~ynh1",
     "url": "https://nlnetlabs.nl/projects/unbound/about/",
     "upstream": {
         "license": "BSD-3-Clause",
