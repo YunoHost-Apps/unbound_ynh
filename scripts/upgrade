@@ -16,8 +16,6 @@ ynh_script_progression --message="Loading installation settings..." --weight=1
 
 app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-
 #=================================================
 # CHECK VERSION
 #=================================================
@@ -48,14 +46,6 @@ ynh_script_progression --message="Stopping a systemd service..." --weight=1
 ynh_systemd_action --service_name=$app --action="stop" --log_path="/var/log/$app/$app.log"
 
 #=================================================
-# CREATE DEDICATED USER
-#=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
-
-# Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path"
-
-#=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..." --weight=1
@@ -69,11 +59,31 @@ ynh_script_progression --message="Adding a configuration file..." --weight=1
 
 ynh_add_config --template="../conf/unbound.conf" --destination="/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 
+chmod 644 "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+chown $app:$app "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
+
 #=================================================
 # ADD ROOT SERVERS LIST
 #=================================================
+ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
 
 wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
+chown $app:$app /var/lib/unbound/root.hints
+
+#=================================================
+# INTEGRATE SERVICE IN YUNOHOST
+#=================================================
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+
+yunohost service add $app --description="Caching DNS server" --log="/var/log/$app/$app.log"
+
+#=================================================
+# START SYSTEMD SERVICE
+#=================================================
+ynh_script_progression --message="Starting a systemd service..." --weight=1
+
+# Start a systemd service
+ynh_systemd_action --service_name=unbound --action="restart" --log_path="/var/log/$app/$app.log"
 
 #=================================================
 # END OF SCRIPT
