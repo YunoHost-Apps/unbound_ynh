@@ -70,7 +70,7 @@ chown $app:$app "/etc/unbound/unbound.conf.d/yunohost-unbound.conf"
 #=================================================
 ynh_script_progression --message="Downloading the list of root DNS servers..." --weight=1
 
-wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints
+wget ftp://FTP.INTERNIC.NET/domain/named.cache -O /var/lib/unbound/root.hints &>/dev/null
 #wget https://www.internic.net/domain/named.cache -O /var/lib/unbound/root.hints
 chown $app:$app /var/lib/unbound/root.hints
 
